@@ -1,0 +1,213 @@
+@import 'Root';
+
+
+@content-min-height: 50vh;
+
+
+.shadow (@width: 0.5em, @spread: 0) {
+  & {
+    box-shadow: 0 0 @width @spread @shadow-color;
+  }
+}
+
+.focus (@color) {
+  & {
+    transform: scale(1.0);
+    transition: color 0.2s;
+    color: @color
+  }
+
+  &:hover {
+    transform: scale(1.1);
+    transition: color 0.2s;
+    color: @color + 50%
+  }
+}
+
+
+.link-focus(@color) {
+  & {
+    font-size: 1em;
+    transition: font-size 0.2s, color 0.2s;
+    color: @color
+  }
+
+  &:hover {
+    font-size: 1.05em;
+    transition: font-size 0.2s, color 0.2s;
+    color: @color + 50%
+  }
+}
+
+.app-layout {
+  background-color: transparent;
+  min-height: 100vh;
+}
+
+.header {
+  background: @header-color;
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  align-items: center;
+  margin-bottom: 2em;
+  min-height: 10vh;
+
+  .shadow (@width: 0.5em, @spread: 0px);
+}
+
+.content-wrapper {
+  margin: 0 2em 0 2em;
+  background-color: transparent;
+}
+
+.breadcrumbs {
+  padding: 1em 1em 1em 2em;
+
+  span, a {
+    color: black;
+  }
+}
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+
+  input {
+    width: 50vh;
+  }
+}
+
+.app-branding {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  align-content: center;
+
+}
+
+.sidebar {
+  background-color: transparent !important;
+  min-height: @content-min-height;
+  margin-right: 2em;
+
+  .ant-layout-sider-children {
+    border-radius: 0.5em;
+    background-color: @content-color;
+
+    .shadow (@width: 0.5em, @spread: 0px);
+  }
+
+  .menu {
+    padding-top: 1em;
+    background-color: transparent;
+    border: 0;
+    border-inline: 0;
+
+    span {
+      font-size: 15px;
+    }
+  }
+}
+
+.content-layout {
+  background-color: transparent;
+}
+
+
+
+.footer {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  background: @footer-color;
+  justify-content: space-between;
+  margin: 2em 0 0 0;
+
+  .shadow (@width: 0.5em, @spread: 0px);
+
+  .social-medias {
+    position: relative;
+    display: flex;
+    gap: 1em;
+    align-content: center;
+    align-items: center;
+    justify-content: end;
+    font-size: 20px;
+
+    .javascript {
+      @color: orange;
+      .focus(@color: @color);
+    }
+
+    .github {
+      @color: black;
+      .focus(@color: @color);
+    }
+
+    .vk {
+      @color: rgba(0, 0, 255, 0.74);
+      .focus(@color: @color);
+    }
+
+    .python {
+      @color: #093ec5;
+      .focus(@color: @color);
+    }
+
+    .docker {
+      @color: #093ec5;
+      .focus(@color: @color);
+    }
+  }
+
+  .divider:after {
+    content: ' / ';
+    color: black;
+  }
+
+  .menu-link {
+    span {
+      .link-focus(@color: black);
+    }
+  }
+}
+
+.content-root {
+  padding: 1rem 1rem 1rem 1rem;
+}
+
+.content {
+  background-color: @content-color;
+  min-height: @content-min-height;
+  border-radius: 0.5em;
+
+  .shadow (@width: 0.5em, @spread: 0px);
+}
+
+
+.contributors {
+  display: flex;
+  gap: 0.2em;
+
+  span {
+    .focus(@color: white);
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .sidebar {
+    display: none;
+  }
+
+  .search-bar {
+    display: none;
+  }
+
+  .footer {
+    display: none;
+  }
+
+}

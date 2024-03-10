@@ -1,0 +1,44 @@
+@import '../../pages/Root.less';
+
+
+
+.tag-color(@color: grey, @font-color: white) {
+    border-color: @color - 50%;
+    background-color: @color + 20%;
+    color: @font-color;
+}
+
+.book-card {
+    border-color: rgb(211, 211, 211);
+    .ant-card-cover {
+      display: flex;
+      justify-content: center;
+  
+      img {
+        padding: 1px 1px 0 1px;
+      }
+    }
+}
+
+.book-tags {
+    display: flex;
+    gap: 0.25em;
+    flex-wrap: wrap;
+}
+
+.book-description {
+  display: flex;
+  flex-wrap: wrap;
+  white-space: break-spaces;
+  margin-top: 1em;
+}
+
+
+.book-authors {
+  font-size: 11px;
+  margin-bottom: 1em;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
