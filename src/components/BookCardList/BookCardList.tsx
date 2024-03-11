@@ -82,6 +82,14 @@ const BookCardList: React.FC<IBookCardListProps> = ({
         [subject]
     )
 
+    useEffect(
+        () => {
+            if (!currentKey || !tabsTitles.includes(currentKey)) {
+                setCurrentKey(tabsTitles.at(0))
+            }
+        }, [books]
+    )
+
     return (
         <>
             {
