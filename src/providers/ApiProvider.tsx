@@ -107,9 +107,7 @@ const ApiProvider: React.FC<IApiProviderProps> = ({children}) => {
         }
 
         useEffect(() => {
-            const firstPollId = setTimeout(() => {
-                pollUpdates()
-            }, 1000)
+            pollUpdates()
 
             const pollingId = setInterval(
                 () => pollUpdates(),
@@ -117,7 +115,6 @@ const ApiProvider: React.FC<IApiProviderProps> = ({children}) => {
             )
             
             return () => {
-                clearTimeout(firstPollId)
                 clearInterval(pollingId)
             }
         }, [])
@@ -139,9 +136,7 @@ const ApiProvider: React.FC<IApiProviderProps> = ({children}) => {
         }
 
         useEffect(() => {
-            const firstPollId = setTimeout(() => {
-                pollUpdates()
-            }, 1000)
+            pollUpdates()
 
             const pollingId = setInterval(
                 () => pollUpdates(),
@@ -149,7 +144,6 @@ const ApiProvider: React.FC<IApiProviderProps> = ({children}) => {
             )
             
             return () => {
-                clearTimeout(firstPollId)
                 clearInterval(pollingId)
             }
         }, [])

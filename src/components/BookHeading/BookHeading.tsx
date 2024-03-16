@@ -27,6 +27,8 @@ const BookHeading: React.FC<IBookHeadingProps> = ({
     description,
     parts
 }) => {
+    const descriptionParsed = description?.replace(/<[^>]*>?/gm, '')
+
     return (
         <div className="book-cover">
             <div className="book-image">
@@ -53,7 +55,7 @@ const BookHeading: React.FC<IBookHeadingProps> = ({
                 <Typography.Text
                     className="book-description"
                 >
-                    {description}
+                    {descriptionParsed}
                 </Typography.Text>
 
                 <div className='book-statistics-wrapper'>

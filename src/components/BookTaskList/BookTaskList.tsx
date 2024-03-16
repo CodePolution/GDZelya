@@ -12,6 +12,11 @@ interface IBookTaskListProps {
 
 
 
+const sortTasks = (a: TTask, b: TTask) => (
+  parseInt(a.title) - parseInt(b.title)
+)
+
+
 const BookTaskList: React.FC<IBookTaskListProps> = ({
     parts,
     onTaskClick
@@ -19,7 +24,7 @@ const BookTaskList: React.FC<IBookTaskListProps> = ({
   const [currentPart, setCurrentPart] = useState<number>(1)
 
   const renderTaskList = (part: TPart) => {
-    const tasks = part.tasks || []
+    const tasks = part.tasks?.sort(sortTasks) || []
     
     return (
       <Flex wrap="wrap" gap='middle'>
