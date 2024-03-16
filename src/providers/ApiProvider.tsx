@@ -1,20 +1,43 @@
-import { createContext, useContext } from "react";
-import { subjects, booksInitial } from "../TestingData";
+import { createContext, useContext, useEffect, useState } from "react";
+import { TBook, TTask, TCover, TPart, TSubject } from "../Types";
+import axios, { AxiosResponse } from "axios";
 
-const ApiContext = createContext<Object>({})
+const enum HTTPMethods {
+    POST = 'post',
+    GET = 'get',
+    DELETE = 'delete',
+    OPTIONS = 'options',
+    PUT = 'put'
+}
+
+
+type ResponseType<T> = Promise<AxiosResponse<T>>
+type DataType = Record<string, any> | Object
+type FilterType<T> = (argument: T) => boolean
+
+
+
+interface IApiContext {
+    getBooks?: (...args: FilterType<any>[]) => Promise<TBook[]>
+    getBook?: (...args: FilterType<any>[]) => Promise<TBook>
+}
 
 
 interface IApiProviderProps {
     children?: React.ReactElement
 }
 
+
 interface IArgs {
     [key: string]: any
 }
 
 
+const ApiContext = createContext({})
+
+
 const useApiContext = () => {
-    const context = useContext(ApiContext)
+    const context = useContext<IApiContext>(ApiContext)
     
     if (!context) {
         throw new Error(
@@ -25,64 +48,121 @@ const useApiContext = () => {
     return context
 }
 
-
-function filterObjectByEntries<ResponseType extends IArgs>(object: ResponseType, filterEntries: [string, any]) {
-    const [key, value] = filterEntries
-
-    if (Array.isArray(value)) {
-        return object[key].some(
-            (element: any) => value.includes(element)
-        )
-    } else {
-        return object[key] === value
-    }
-}
-
-
 const ApiProvider: React.FC<IApiProviderProps> = ({children}) => {
-    
-    function filterArrayResponse<ResponseType extends IArgs>(array: ResponseType[], args?: Partial<ResponseType>) {
-        if (!args) {
-            return array
+    const HOST: string = 'https://api.n0maci.ru/api'
+
+    function filterArrayResponse<ResponseType extends IArgs>(array: ResponseType[], args: FilterType<ResponseType>[]) {
+        if (!args || args.length < 1) {
+            return [...array]
         }
 
-        let arrayFiltered: ResponseType[] = []
+        let arrayFiltered: ResponseType[] = [...array]
 
-        for (const [key, value] of Object.entries(args)) {
-            arrayFiltered = [
-                ...arrayFiltered, 
-                ...array.filter(
-                    (element) => filterObjectByEntries<ResponseType>(element, [key, value])
-                )
-            ]
+        for (const filterFunc of args) {
+            arrayFiltered = arrayFiltered.filter(
+                (element) => filterFunc(element)
+            )
         }
 
         return arrayFiltered
         
     }
 
-    const getBooks = (args?: any) => {
-        return filterArrayResponse(booksInitial, args)
+    async function makeRequest<T extends Object>(url: string, method: HTTPMethods, data?: DataType): ResponseType<T> {
+        return await axios({
+            url: `${HOST}/${url}`,
+            method,
+            data,
+            withCredentials: false
+        })
     }
 
-    const getBook = (args?: any) => {
-        return getBooks(args)[0] || null
+    function getBooks(...args: FilterType<TBook>[]): Promise<TBook[]> {
+        const data = makeRequest<TBook[]>('book/', HTTPMethods.GET)
+
+        return data.then(
+            (response) => filterArrayResponse(response.data, args)
+        )
     }
 
-    const getSubjects = () => {
-        return subjects
+    function getBook(...args: FilterType<TBook>[]): Promise<TBook> {
+        const bookRequest = getBooks(...args).then(
+            (response) => response[0]
+        )
+
+        return bookRequest
     }
 
-    const getGrades = () => {
-        return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    const useBooks = (...args: FilterType<TBook>[]): [TBook[], boolean] => {
+        const [books, setBooks] = useState<TBook[]>([])
+        const [loading, setLoading] = useState<boolean>(true)
+
+        const pollUpdates = () => {
+            getBooks(...args).then(
+                data => {
+                    setBooks(data)
+                    setLoading(false)
+                }
+            )
+        }
+
+        useEffect(() => {
+            const firstPollId = setTimeout(() => {
+                pollUpdates()
+            }, 1000)
+
+            const pollingId = setInterval(
+                () => pollUpdates(),
+                10000
+            )
+            
+            return () => {
+                clearTimeout(firstPollId)
+                clearInterval(pollingId)
+            }
+        }, [])
+
+        return [books, loading]
     }
 
+    const useBook = (...args: FilterType<TBook>[]): [TBook | undefined, boolean] => {
+        const [book, setBook] = useState<TBook>()
+        const [loading, setLoading] = useState<boolean>(true)
+
+        const pollUpdates = () => {
+            getBook(...args).then(
+                data => {
+                    setBook(data)
+                    setLoading(false)
+                }
+            )
+        }
+
+        useEffect(() => {
+            const firstPollId = setTimeout(() => {
+                pollUpdates()
+            }, 1000)
+
+            const pollingId = setInterval(
+                () => pollUpdates(),
+                10000
+            )
+            
+            return () => {
+                clearTimeout(firstPollId)
+                clearInterval(pollingId)
+            }
+        }, [])
+
+        return [book, loading]
+    }
 
     return (
         <ApiContext.Provider value={{
             getBooks,
-            getSubjects,
-            getBook
+            getBook,
+            useBooks,
+            useBook
         }}>
             {children}
         </ApiContext.Provider>

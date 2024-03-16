@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
 import AppRoutes from "./Routes";
+import { BrowserRouter } from 'react-router-dom';
+import ApiProvider from './providers/ApiProvider';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -9,7 +11,11 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <AppRoutes />
+    <ApiProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </ApiProvider>
   </React.StrictMode>
 );
 

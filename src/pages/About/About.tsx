@@ -84,6 +84,17 @@ const DrfColor: ProgressProps['strokeColor'] = {
 }
 
 
+const percentage = {
+    'React': 51,
+    'Django': 21,
+    'Docker': 12,
+    'DRF': 7,
+    'TypeScript': 20,
+    'PostgreSQL': 8
+}
+
+
+
 interface IStatisticsCardProps {
     title: string
     value?: number
@@ -115,15 +126,6 @@ const StatisticsCard: React.FC<IStatisticsCardProps> = ({
 }
 
 const About = () => {
-    const percentage = {
-        'React': 25,
-        'Django': 45,
-        'Docker': 23,
-        'DRF': 67,
-        'TypeScript': 12,
-        'PostgreSQL': 56
-    }
-
     return (
         <Root>
             <div className="statistics">

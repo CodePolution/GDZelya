@@ -1,50 +1,68 @@
 import React, { useState } from "react"
 import { Flex, Tabs, Button } from "antd"
 import type { TabsProps } from "antd";
+import { TPart, TTask } from "../../Types";
 
 
 interface IBookTaskListProps {
-    parts?: Array<number | string>
+    parts: TPart[]
     tasks?: any[]
+    onTaskClick?: (task: TTask) => void
 }
 
 
 
 const BookTaskList: React.FC<IBookTaskListProps> = ({
-    parts
+    parts,
+    onTaskClick
 }) => {
   const [currentPart, setCurrentPart] = useState<number>(1)
-  const tasks = new Array(200).fill(0)
 
-  const renderTaskList = (part: number) => {
-    const tasksSliced = tasks.slice(100 * (part - 1), 100 * part)
-    console.log('Tasks Sliced: ', tasksSliced)
+  const renderTaskList = (part: TPart) => {
+    const tasks = part.tasks || []
     
     return (
       <Flex wrap="wrap" gap='middle'>
-        {tasksSliced.map(
-          (_, index) => <Button>{(part - 1) * 100 + index + 1}</Button>
+        {tasks.map(
+          (task) => (
+            <Button
+              onClick={() => onTaskClick?.(task)}
+            >
+              {task.title}
+            </Button>
+          )
         )}
       </Flex>
     )
   }
 
     const items: TabsProps['items'] = parts?.map(
-      (part) => (
+      (part: TPart) => (
         {
-          key: part.toString(),
-          label: `Часть ${part}`,
-          children: renderTaskList(parseInt(part.toString())),
+          key: part.title.toString(),
+          label: `Часть ${part.title}`,
+          children: renderTaskList(part),
         }
       )
     )
 
     return (
-        <Tabs
-            activeKey={currentPart.toString()}
-            onChange={(activeKey: string) => setCurrentPart(parseInt(activeKey))}
-            items={items}
-        />
+        <>
+          {
+            parts.length <= 1 ? (
+              <div className="tasks-untabbed">
+                  {renderTaskList(parts[0])}
+              </div>
+            ) : (
+              <Tabs
+                  className="tasks-tabs"
+                  activeKey={currentPart.toString()}
+                  onChange={(activeKey: string) => setCurrentPart(parseInt(activeKey))}
+                  items={items}
+              />
+            )
+          }
+        </>
     )
 }
 

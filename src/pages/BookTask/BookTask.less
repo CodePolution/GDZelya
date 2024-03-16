@@ -1,0 +1,32 @@
+
+@divider-border-color: rgb(241, 241, 241) !important;
+@card-border-color: @divider-border-color + 20%;
+
+.book-task {
+    margin: 1.5rem 0 0 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.task-images {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    gap: 1rem;
+
+    margin-bottom: 2rem;
+}
+
+.divider {
+    border-color: @divider-border-color;
+}
+
+.image-card {
+    border-color: @card-border-color;
+    padding: 0 !important;
+}

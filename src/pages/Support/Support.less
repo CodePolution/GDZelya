@@ -1,0 +1,62 @@
+@import '../Root';
+
+
+.shadow (@width: 0.5em, @spread: 0) {
+    & {
+        box-shadow: 0 0 @width @spread @shadow-color;
+    }
+}
+
+.support-text {
+    margin: 2rem;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.support-title {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+
+    margin-bottom: 3rem !important;
+}
+
+.contact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.support-text-divider {
+    margin-top: 3rem;
+}
+
+
+.contacts {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-top: 0.2em;
+    gap: 2rem;
+}
+
+
+.statistic-title {
+    display: flex;
+    justify-content: center;
+    font-size: 16px;
+    gap: 0.5rem;
+}
+
+
+.ant-statistic-content-value {
+    font-size: 20px;
+}
+
+.paragraph-support {
+    font-size: 16px !important;
+}

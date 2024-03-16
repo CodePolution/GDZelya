@@ -1,40 +1,13 @@
-import React, {useState, useReducer, useRef, MouseEventHandler } from "react";
-import { Layout, Space, Input, Breadcrumb, Button, Menu, Result, Avatar, Flex, Tooltip } from "antd";
-import { HomeOutlined, BulbOutlined, GithubOutlined, JavaScriptOutlined, PythonOutlined, DockerOutlined } from "@ant-design/icons";
-import { redirect, useNavigate } from "react-router-dom";
+import React, {useState, useReducer, useRef, startTransition, useEffect } from "react";
+import { Layout, Space, Input, Breadcrumb, Button, Avatar, Tooltip, TourProps, Tour, Image } from "antd";
+import { useNavigate } from "react-router-dom";
 import { SearchOutlined } from "@ant-design/icons";
-import type { MenuProps } from 'antd';
-
-
-import './Index.less';
 import { TooltipPlacement } from "antd/es/tooltip";
 import { useApiContext } from "../providers/ApiProvider";
+import MenuSidebar from "../components/MenuSidebar/MenuSidebar";
+import { Breadcrumbs } from "../Routes";
 
-
-type MenuItem = Required<MenuProps>['items'][number];
-
-function getItem(
-    label: React.ReactNode,
-    key: React.Key,
-    icon?: React.ReactNode,
-    children?: MenuItem[],
-    type?: 'group',
-    onClick?: () => void
-): MenuItem {
-    return {
-        key,
-        icon,
-        children,
-        label,
-        type,
-        onClick
-    } as MenuItem;
-}
-
-
-function getRandomInt(max: number) {
-    return Math.floor(Math.random() * max);
-}
+import './Index.less';
 
 
 interface IRootProps {
@@ -48,28 +21,6 @@ interface Person {
     name: string
     profileLink?: string
 }
-
-
-
-const groupBy = (books: any[], field: string) => (
-    books.reduce((accumulator, book) => {
-        const bookField = book[field]
-        if (Array.isArray(bookField)) {
-            bookField.forEach(
-                (element) => {
-                    if (!accumulator[element]) accumulator[element] = []
-                    accumulator[element].push(book)
-                }
-            )
-
-        } else {
-            if (!accumulator[bookField]) accumulator[bookField] = []
-            accumulator[bookField].push(book)
-        }
-       
-        return accumulator;
-    }, {})
-)
 
 
 const people: Person[] = [
@@ -139,54 +90,79 @@ const renderAvatar = (person: Person, size?: string | number, tooltipPos?: strin
 }
 
 const Root: React.FC<IRootProps> = ({children, hideSidebar}) => {
-    const [loading, setLoading] = useState<boolean>(false)
     const [searchQuery, setSearchQuery] = useState<string>()
-    const { getBooks }: any = useApiContext()
+    const { useBooks }: any = useApiContext()
+
+    const [books, booksAreLoading] = useBooks()
+    const [showTour, setShowTour] = useState<boolean>(false)
+    const breadcrumbMatches = Breadcrumbs()
 
     const [, forceUpdate] = useReducer(x => x + 1, 0);
     const navigate = useNavigate()
 
-    const booksByGrades = groupBy(getBooks(), 'grades')
-
-    const items: MenuProps['items'] = Object.entries(booksByGrades).map(
-            ([grade, books]: any) => (
-                getItem(
-                    `${grade} класс`, 
-                    `${grade}grade`, 
-                    <BulbOutlined />,
-                    [...Array.from(new Set(books.map((el: any) => el.subject))).map(
-                        (subject: any) => getItem(
-                            subject, 
-                            `${grade}-${subject}`,
-                            undefined,
-                            undefined,
-                            undefined
-                        )
-                    )]
-                )
-            )   
-    );
+    const sidebarRef = useRef(null)
+    const breadcrumbsRef = useRef(null)
+    const contributorsRef = useRef(null)
+    const searchBarRef = useRef(null)
     
-    const breadcrumbs = [
-        {
-            href: '/',
-            title: (
-                <>
-                    <HomeOutlined/>
-                    <span>Главная</span>
-                </>
-            ),
-        },
-        {
-            href: '/general/',
-            title: 'Основная'
+    const breadcrumbs = breadcrumbMatches.map(
+        ({match, breadcrumb}, index, array) => {
+            const title = typeof breadcrumb === 'string' ? <span>{breadcrumb}</span> : breadcrumb
+
+            if (array.length <= index + 1) {
+                return {
+                    title: breadcrumb
+                }
+            }
+
+            return {
+                href: match.pathname,
+                title: title
+            }
         }
-    ]
+    )
+
+    
+    const steps: TourProps['steps'] = [
+        {
+            cover: <Image src={`${process.env.PUBLIC_URL}/logo.svg`} width={300} preview={false} />,
+            title: 'Добро пожаловать на GDZelya',
+            description: 'Давайте проведем инструктаж по сайту.',
+            placement: 'center'
+        },
+
+        {
+            title: 'Меню',
+            description: 'Здесь Вы можете выбрать класс и предмет, учебники для которых хотите отобразить на странице.',
+            placement: 'right',
+            target: () => sidebarRef.current!
+        },
+
+        {
+            title: 'Навигация',
+            description: 'Вы можете следить за своими перемещениями по сайту через панель навигации, а так же вернуть на прошлые страницы.',
+            placement: 'bottom',
+            target: () => breadcrumbsRef.current!,
+        },
+
+        {
+            title: 'Поиск учебников',
+            description: 'Здесь вы можете найти любой имеющийся учебник, введя запрос в поисковую строку и нажав кнопку "Поиск".',
+            placement: 'bottom',
+            target: () => searchBarRef.current!,
+        },
+
+        {
+            title: 'Участники проекта',
+            description: 'Здесь находятся участинки и разработчики данного проекта со ссылками на их профили GitHub.',
+            placement: 'top',
+            target: () => contributorsRef.current!,
+        },
+    ];
 
     const onMenuSelect = (info: any) => {
         const [grade, subject] = info.key.split("-").slice(0, 2)
-        console.log(grade, subject)
-        navigate('/books/', { state: { subject, grade, key: getRandomInt(1000) }, replace: true })
+        navigate('/books/', { state: { subject, grade }, replace: true })
         forceUpdate()
     }
 
@@ -196,19 +172,34 @@ const Root: React.FC<IRootProps> = ({children, hideSidebar}) => {
         }
     }
 
+    const handleTourClose = () => {
+        setShowTour(false)
+
+        setTimeout(() => {
+            localStorage.setItem('site', JSON.stringify({showTour: false}))
+        }, 100)
+    }
+    
+    useEffect(() => {
+        const localData = localStorage.getItem('site')
+        const dataParsed = !!localData && JSON.parse(localData)
+
+        setShowTour(!dataParsed || dataParsed['showTour'])
+    }, [localStorage.getItem('site')])
+
+
     return (
         <Layout className='app-layout ant-app'>
             <Layout.Header className='header'>
-                <Space size='small' className='app-branding'>
-                    <Avatar
-                        src='https://media.discordapp.net/attachments/915590684357038133/1214641819904643112/gJql9lBPRq-KqR3bBsBocw.png?ex=65f9da58&is=65e76558&hm=a23a0c67901b15191c3b1d62f97cb71fe85f925cf4e191171373921682933588&=&format=webp&quality=lossless&width=350&height=350'
-                        size='large'
-                        className='app-logo'
-                    />
+                <Space size='small' className='app-branding' onClick={() => navigate('/')}>
+                        <img
+                            className="site-logo"
+                            src={`${process.env.PUBLIC_URL}/logo.svg`}
+                        />
                     <h3>GDZelya</h3>
                 </Space>
 
-                <Space size='small' className='search-bar'>
+                <Space size='small' className='search-bar' ref={searchBarRef}>
                     <Input 
                         placeholder='Поиск...' 
                         className='search-input' 
@@ -223,19 +214,17 @@ const Root: React.FC<IRootProps> = ({children, hideSidebar}) => {
                 <Layout className='content-layout'>
                     {!hideSidebar && 
                         <Layout.Sider className='sidebar'>
-                            <Menu
-                                selectedKeys={[]}
-                                selectable={false}
-                                className='menu'
-                                items={items}
-                                onClick={onMenuSelect}
-                            />
+                            <div className="sidebar-ref" ref={sidebarRef}>
+                                <MenuSidebar books={books} onMenuSelect={onMenuSelect} loading={booksAreLoading}/>
+                            </div>
                         </Layout.Sider>
                     }
 
                     <Layout.Content className='content-wrapped'>
                         <div className='content'>
-                            <Breadcrumb className='breadcrumbs' items={breadcrumbs}/>
+                            <div className="breadcrumbs-block" ref={breadcrumbsRef}>
+                                <Breadcrumb className='breadcrumbs' items={breadcrumbs} />
+                            </div>
 
                             <div className='content-root'>
                                 {children}
@@ -243,15 +232,14 @@ const Root: React.FC<IRootProps> = ({children, hideSidebar}) => {
                         </div>
                     </Layout.Content>
                 </Layout>
-
             </Layout.Content>
 
             <Layout.Footer className='footer'>
                 <div className='footer-menu'>
                     <Space size='small' className='menu-links'>
-                        <Avatar
-                            src='https://media.discordapp.net/attachments/915590684357038133/1214641819904643112/gJql9lBPRq-KqR3bBsBocw.png?ex=65f9da58&is=65e76558&hm=a23a0c67901b15191c3b1d62f97cb71fe85f925cf4e191171373921682933588&=&format=webp&quality=lossless&width=350&height=350'
-                            size='large'
+                        <img
+                            className="site-logo"
+                            src={`${process.env.PUBLIC_URL}/logo.svg`}
                         />
 
                         <a className='menu-link' href="/about/">
@@ -260,19 +248,19 @@ const Root: React.FC<IRootProps> = ({children, hideSidebar}) => {
 
                         <i className='divider'/>
 
-                        <a className='menu-link'>
+                        <a className='menu-link' href='/our-projects/'>
                             <span>Наши работы</span>
                         </a>
 
                         <i className='divider'/>
 
-                        <a className='menu-link'>
+                        <a className='menu-link' href="/support/">
                             <span>Поддержка</span>
                         </a>
                     </Space>
                 </div>
 
-                <div className='contributors'>
+                <div className='contributors' ref={contributorsRef}>
                     {
                         people.map(
                             (person) => renderAvatar(person)
@@ -280,6 +268,18 @@ const Root: React.FC<IRootProps> = ({children, hideSidebar}) => {
                     }
                 </div>
             </Layout.Footer>
+
+            <Tour
+                open={showTour}
+                onClose={handleTourClose}
+                steps={steps}
+                indicatorsRender={(current: number, total: number) => (
+                <span>
+                    {current + 1} / {total}
+                </span>
+            )}
+        />
+
         </Layout>
     )
 }

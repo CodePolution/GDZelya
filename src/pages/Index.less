@@ -1,7 +1,7 @@
 @import 'Root';
 
 
-@content-min-height: 50vh;
+@content-min-height: 68vh;
 
 
 .shadow (@width: 0.5em, @spread: 0) {
@@ -66,6 +66,7 @@
 
   span, a {
     color: black;
+    text-align: center;
   }
 }
 
@@ -197,6 +198,69 @@
   }
 }
 
+.site-logo {
+  width: 3rem;
+  display: flex;
+  align-content: center;
+}
+
+
+.loading-block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10rem;
+}
+
+
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+}
+
+.carousel-status {
+  display: none;
+}
+
+
+
+.paragraphs {
+  margin-left: 1rem;
+  margin-right: 1rem;
+
+  .paragraph {
+    font-size: 16px !important;
+  }
+}
+
+
+.index-page-description {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+
+.list-text-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+
+  margin-top: 1rem;
+
+  h5 {
+    margin-top: 0 !important;
+  }
+
+  span {
+    font-size: 15px !important;
+  }
+}
+
+.slider-wrapper {
+  border-radius: 0.5rem;
+}
+
 @media screen and (max-width: 400px) {
   .sidebar {
     display: none;
@@ -211,3 +275,4 @@
   }
 
 }
+
