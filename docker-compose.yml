@@ -1,0 +1,25 @@
+services:
+  postgres_service:
+    image: postgres:latest
+    container_name: postgres_container
+    environment:
+      - POSTGRES_USER=kirill
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=gdz
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
+    ports:
+      - "5433:5432"
+
+  backend:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    container_name: backend_container
+    environment:
+      - DEBUG=false
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_volume:
